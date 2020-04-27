@@ -62,3 +62,81 @@ That is all it takes to build this piece of software. Most (but not all) will be
 
 ## Creating a PKGBUILD
 
+Now we know how to build our software from source, it is time to create a pacman package from it.  To do this we create a file called `PKGBUILD`.  This file contains various fields annotating the software and the build commands.
+
+### Boilerplate
+
+There are four fields that every `PKGBUILD` file must minimally contain. These fields will be described in more detail elsewhere, but briefly we need:
+
+- **pkgname**: the name of the software
+- **pkgver**: the version of the software
+- **pkgrel**: the release number of the package
+- **arch**: the architecture the package can be built on
+
+In the `PKGBUILD` file, this boilerplate for the GNU Hello package would look like:
+
+````bash
+pkgname=hello
+pkgver=2.10
+pkgrel=1
+arch=('x86_64')
+````
+
+Note we have used the `x86_64` architecture as an example. You will need to adjust that to the architecture of your system as given in `makepkg.conf` to follow this example.
+
+### Downloading the source
+
+To download the source with a PKGBUILD we specify a `source` array:
+
+````bash
+source=("https://ftp.gnu.org/gnu/hello/hello-2.10.tar.gz")
+````
+
+Note that we can use any bash syntax here, including the variables as defined in our boilerplate.  So this can be written as:
+
+````bash
+source=("https://ftp.gnu.org/gnu/hello/hello-${pkgver}.tar.gz")
+````
+
+Note we could have also used `${pkgname}` in place of `hello` in the source line, but this has no advantage.  Using `${pkgver}` in the source allows us to change the version of the software by just altering the `pkgver` variable in the boilerplate.
+
+Note that for this minimal first example, we are not following best practices for source verification. Instead we will add the `md5sum` of the source file to satisfy the build system.
+
+````bash
+md5sums=('6cd0ffea3884a4e79330338dcc2987d6')
+````
+
+### Adding build commands
+
+Now we can add the build commands to the PKGBUILD.  This is separated into two functions, those run as the normal user, and those run as the "`root`" user.  We will start with the exact commands use to build the software above:
+
+````bash
+build() {
+  cd hello-2.10
+  ./configure
+  make
+}
+
+package() {
+  make install
+}
+````
+
+There are a few adjustments that need to be made.  As in the `source` array, we can use the `pkgver` variable rather than a specific version.  Also, reading the `INSTALL` file, we see that running `./configure` on its own prepares files to be placed in `/usr/local`. When packaging software to be installed on your system, you will generally want that directly in `/usr`. We can add that information to the `configure` command:
+
+````bash
+build() {
+  cd hello-${pkgver}
+  ./configure --prefix=/usr
+  make
+}
+````
+
+Now to adjust the packaging step. The packaging system takes us back to the source root between each function, so we will need to repeat changing into the source directory. The current `make install` command, trys installing files directly into `/usr`. This misses the entire point of packaging software - we want all files in the system directories to be managed by the package manager. To avoid this, we install to a temporary directory, referred to by the variable `${pkgdir}`, and using the `DESTDIR` arguement to make. The packaging script takes all files installed to this directory and creates the final package from it.  So our final packaging function looks like:
+
+````bash
+package() {
+  cd hello-${pkgver}
+  make DESTDIR="${pkgdir}/" install
+}
+````
