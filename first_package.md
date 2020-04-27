@@ -164,3 +164,21 @@ package() {
   make DESTDIR="${pkgdir}/" install
 }
 ````
+
+## Building the package
+
+Now we have a complete `PKGBUILD` file, we can proceed to create the package.  In the same directory as the `PKGBUILD` file, run the command:
+
+````shell
+$ makepkg
+````
+
+If all is successful, `makepkg` will run though downloading the source, building the code and creating the package. The final package file will have a name like `hello-2.10-1-x86_64.pkg.tar.xz` (the extension may vary depending on your default compression setting).
+
+Congratulations!  You have successfully created your first package. This can now be installed with `pacman` by running the following as the `root` user:
+
+````shell
+$ pacman -U hello-2.10-1-x86_64.pkg.tar.xz
+````
+
+You can run the `hello` command to verify it is installed and working.
