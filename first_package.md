@@ -140,3 +140,27 @@ package() {
   make DESTDIR="${pkgdir}/" install
 }
 ````
+
+### The final PKGBUILD
+
+If you have followed the instructions above, your first `PKGBUILD` file should contain the following:
+
+````bash
+pkgname=hello
+pkgver=2.10
+pkgrel=1
+arch=('x86_64')
+source=("https://ftp.gnu.org/gnu/hello/hello-${pkgver}.tar.gz")
+md5sums=('6cd0ffea3884a4e79330338dcc2987d6')
+
+build() {
+  cd hello-${pkgver}
+  ./configure --prefix=/usr
+  make
+}
+
+package() {
+  cd hello-${pkgver}
+  make DESTDIR="${pkgdir}/" install
+}
+````
