@@ -1,1 +1,4 @@
 theme: jekyll-theme-slate
+
+title: Pacman Packaging Guide
+description: How to package software for the Pacman package manager
