@@ -30,5 +30,35 @@ We have downloaded the source file (`hello-2.10.tar.gz`). Note that a cryptograp
 
 Now we can move onto building the software.
 
+### Building the Software
+
+The first step is to extract the source tarball and change into the source directory:
+
+````shell
+$ tar -xf hello-2.10.tar.gz
+$ cd hello-2.10
+````
+
+For this example, inside the source directory you will find a file named `INSTALL` with instructions of how to build and install the software. Other time you may need to follow instructions on a software's wiki page. Following these instructions we can build the software with the following commands:
+
+````shell
+$ ./configure
+$ make
+````
+
+We can then test the build worked correctly with:
+
+````shell
+$ ./hello
+Hello, world!
+````
+We could then install the software to our system.  It is not advisable to install software to the system without a package manager, so **do not run** this example command.  It would also need run as the `root` user to have access to the system directory.
+
+````shell
+$ make install
+````
+
+That is all it takes to build this piece of software. Most (but not all) will be slightly more complicated than this!
+
 ## Creating a PKGBUILD
 
