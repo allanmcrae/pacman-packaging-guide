@@ -16,5 +16,19 @@ All good programming experiences start with a simple "Hello, world!".  So will y
 
 ## Building From Source
 
+We will first walk through the steps of manually building the software.
+
+### Obatining the Source
+
+From the project website, we can follow the [link](https://ftp.gnu.org/gnu/hello/) through to download the source. We will select the latest version of the software to build, which at the time of writing is hello 2.10.
+
+````shell
+$ wget https://ftp.gnu.org/gnu/hello/hello-2.10.tar.gz
+````
+
+We have downloaded the source file (`hello-2.10.tar.gz`). Note that a cryptographic signature (`hello-2.10.tar.gz.sig`) is also available for download and could be use to verify the integrity of the source file. We will skip this for now, but verifying source files will be covered in more detail later.
+
+Now we can move onto building the software.
+
 ## Creating a PKGBUILD
 
