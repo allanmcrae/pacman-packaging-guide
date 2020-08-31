@@ -6,13 +6,14 @@ layout: default
 
 # Your First Package
 
-We will begin walking you through building a simple package.  This will introduce you to a basic software build from source, and then convert that into a package to be installed by the Pacman package manager.
+We will begin by walking you through the building of a simple package.  This guide will introduce you to a basic software build from source, and then convert that into a package to be installed by the Pacman package manager.
+
 
 ## Hello!
 
 All good programming experiences start with a simple "Hello, world!".  So will your packaging journey.
 
-[GNU Hello](https://www.gnu.org/software/hello/) is an almost-trivial free software program that prints the phrase "Hello, world!" or a translation thereof to the screen. This is primarily to serve as an example of the GNU coding standards, and serve as template for more serious software projects. We shall use it as an introduction to the concept of package software.
+[GNU Hello](https://www.gnu.org/software/hello/) is an almost-trivial free software program that prints the phrase "Hello, world!" or a translation thereof to the screen. This is primarily created as an example of the GNU coding standards, and serves as template for more serious software projects. We shall use it as an introduction to the concept of package software.
 
 ## Building From Source
 
@@ -26,7 +27,7 @@ From the project website, we can follow the [link](https://ftp.gnu.org/gnu/hello
 $ wget https://ftp.gnu.org/gnu/hello/hello-2.10.tar.gz
 ````
 
-We have downloaded the source file (`hello-2.10.tar.gz`). Note that a cryptographic signature (`hello-2.10.tar.gz.sig`) is also available for download and could be use to verify the integrity of the source file. We will skip this for now, but verifying source files will be covered in more detail later.
+We have downloaded the source file (`hello-2.10.tar.gz`). Note that a cryptographic signature (`hello-2.10.tar.gz.sig`) is also available for download and could be used to verify the integrity of the source file. We will skip this for now, but verifying source files will be covered in more detail later.
 
 Now we can move onto building the software.
 
@@ -39,26 +40,26 @@ $ tar -xf hello-2.10.tar.gz
 $ cd hello-2.10
 ````
 
-For this example, inside the source directory you will find a file named `INSTALL` with instructions of how to build and install the software. Other time you may need to follow instructions on a software's wiki page. Following these instructions we can build the software with the following commands:
+For this example, you will find a file named `INSTALL` inside the source directory with instructions of how to build and install the software. Other times you may need to follow instructions on a software's wiki page. Following these instructions, we can build the software with the following commands:
 
 ````shell
 $ ./configure
 $ make
 ````
 
-We can then test the build worked correctly with:
+We can then test the build worked correctly by running the built file:
 
 ````shell
 $ ./hello
 Hello, world!
 ````
-We could then install the software to our system.  It is not advisable to install software to the system without a package manager, so **do not run** this example command.  It would also need run as the `root` user to have access to the system directory.
+We could then install the software to our system.  It is not advisable to install software to the system without a package manager, so **do not run** this example command.  It would also need to be run as the `root` user in order to have access to the system directory.
 
 ````shell
 $ make install
 ````
 
-That is all it takes to build this piece of software. Most (but not all) will be slightly more complicated than this!
+That is all it takes to build this piece of software. Most (but not all) will be slightly more complicated!
 
 ## Creating a PKGBUILD
 
@@ -98,17 +99,17 @@ Note that we can use any bash syntax here, including the variables as defined in
 source=("https://ftp.gnu.org/gnu/hello/hello-${pkgver}.tar.gz")
 ````
 
-Note we could have also used `${pkgname}` in place of `hello` in the source line, but this has no advantage.  Using `${pkgver}` in the source allows us to change the version of the software by just altering the `pkgver` variable in the boilerplate.
+Note we could have also used `${pkgname}` in place of `hello` in the source line, but this has no real advantage.  Using `${pkgver}` in the source allows us to change the version of the software by just altering the `pkgver` variable in the boilerplate.
 
-Note that for this minimal first example, we are not following best practices for source verification. Instead we will add the `md5sum` of the source file to satisfy the build system.
+Note that for this minimal first example, we are not following best practices for source verification. Instead we will add the `cksum` of the source file to satisfy the build system.
 
 ````bash
-md5sums=('6cd0ffea3884a4e79330338dcc2987d6')
+cksums=('3094713051')
 ````
 
 ### Adding build commands
 
-Now we can add the build commands to the PKGBUILD.  This is separated into two functions, those run as the normal user, and those run as the "`root`" user.  We will start with the exact commands use to build the software above:
+Now we can add the build commands into the PKGBUILD.  This is separated into two functions, those run as the normal user are put in the `build()` function, and those run as the "`root`" user into the `package()` function.  We will start with the exact commands we used to build the software above:
 
 ````bash
 build() {
@@ -122,7 +123,7 @@ package() {
 }
 ````
 
-There are a few adjustments that need to be made.  As in the `source` array, we can use the `pkgver` variable rather than a specific version.  Also, reading the `INSTALL` file, we see that running `./configure` on its own prepares files to be placed in `/usr/local`. When packaging software to be installed on your system, you will generally want that directly in `/usr`. We can add that information to the `configure` command:
+There are a few adjustments that need to be made.  As in the `source` array, we can use the `pkgver` variable rather than a specific version.  Also, reading the `INSTALL` file, we see that running `./configure` on its own prepares files to be placed in `/usr/local`. When packaging software to be installed on your system, you will generally want that to install files into the `/usr` heirarchy directly. We can add that information to the `configure` command:
 
 ````bash
 build() {
@@ -132,7 +133,7 @@ build() {
 }
 ````
 
-Now to adjust the packaging step. The packaging system takes us back to the source root between each function, so we will need to repeat changing into the source directory. The current `make install` command, trys installing files directly into `/usr`. This misses the entire point of packaging software - we want all files in the system directories to be managed by the package manager. To avoid this, we install to a temporary directory, referred to by the variable `${pkgdir}`, and using the `DESTDIR` arguement to make. The packaging script takes all files installed to this directory and creates the final package from it.  So our final packaging function looks like:
+Now to adjust the packaging step. The packaging system takes us back to the source root between each function, so we will need to repeat changing into the source directory. The current `make install` command tries installing files directly into `/usr`. This misses the entire point of packaging software - we want all files in the system directories to be managed by the package manager. To avoid this, we install to a temporary directory that our packaging system manages, referred to by the variable `${pkgdir}`. This is achieved by adding the `DESTDIR` arguement to the `make` command. The packaging script takes all files installed to this directory and creates the final package from it.  So our final packaging function looks like:
 
 ````bash
 package() {
@@ -151,7 +152,7 @@ pkgver=2.10
 pkgrel=1
 arch=('x86_64')
 source=("https://ftp.gnu.org/gnu/hello/hello-${pkgver}.tar.gz")
-md5sums=('6cd0ffea3884a4e79330338dcc2987d6')
+cksums=('3094713051')
 
 build() {
   cd hello-${pkgver}
