@@ -2,7 +2,7 @@
 layout: default
 ---
 
-[Table of Contents](toc.md) > Your first package
+[Index](index.md) > Your first package
 
 # Your First Package
 
